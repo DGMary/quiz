@@ -2,9 +2,12 @@ import React from 'react';
 import { Box, Button } from '@mui/material';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { collection, addDoc } from 'firebase/firestore';
 import InputText from '../../../../components/Form/InputText/InputText';
 import { ValidationSchema, validationSchema } from './shemaValidation';
 import InputFile from '../../../../components/Form/InputFile/InputFile';
+import convertFileToBase64 from '../../../../utils/convertFileToBase64';
+import { db } from '../../../../config/firebase';
 
 const NewQuizForm = () => {
   const {
@@ -12,9 +15,22 @@ const NewQuizForm = () => {
   } = useForm<ValidationSchema>({
     resolver: zodResolver(validationSchema)
   });
+  const quizId = 9; // TODO fix to dynamic ID
 
   const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
-    console.log('data', data, data.picture[0]);
+    const imageSrc = await convertFileToBase64(data.picture[0]);
+    try {
+      const docRef = await addDoc(collection(db, 'quizes'), {
+        id: quizId,
+        title: data.quizTitle,
+        description: data.quizDescription,
+        img: imageSrc
+      });
+      console.log('Document written with ID: ', docRef.id);
+    } catch (e) {
+      console.error('Error adding document: ', e);
+    }
+    console.log('data', data, data.picture[0], imageSrc);
   };
 
   return (

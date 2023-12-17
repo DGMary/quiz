@@ -5,6 +5,7 @@ import { FieldErrors, FieldValues } from 'react-hook-form';
 import {
   ImageWrapper, InputTextdFile, ErrorText, BoxWrapper
 } from './styled';
+import convertFileToBase64 from '../../../utils/convertFileToBase64';
 
 type Props<
   TFieldValues extends FieldValues = FieldValues
@@ -19,14 +20,6 @@ const InputFile = ({ name, register, errors }: Props) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { ref } = register('picture');
 
-  function convertFileToBase64(file: File) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-    });
-  }
   const handlerChangeFile = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length) {
       try {
